@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -62,7 +63,11 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parser().setSigningKey(jwtConfig.getSecretKey()).parseClaimsJws(token).getBody();
         String username = claims.getSubject();
-        return new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
+        String role = claims.get("role", String.class);
+
+        // Board 서버에서는 UserDetailsService 없이 직접 UserDetails 생성
+        CustomUserDetails userDetails = new CustomUserDetails(username, role);
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
 

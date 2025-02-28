@@ -32,6 +32,14 @@ public class Community {
     private LocalDateTime updateTime;
 
 
+    public void editContent(String content){
+        this.content = content;
+    }
+
+    public void editTitle(String title){
+        this.title = title;
+    }
+
     public Community(UserDetails userDetails, CommunityRequest communityRequest){
         this.title = communityRequest.getTitle();
         this.content = communityRequest.getContent();
