@@ -46,7 +46,6 @@ public class JwtTokenProvider {
             Jwts.parser().setSigningKey(jwtConfig.getSecretKey()).parseClaimsJws(token);
             return true;
         } catch (Exception e) {
-            // throw new UserException(e.getMessage());
             return false;
         }
     }
@@ -69,6 +68,4 @@ public class JwtTokenProvider {
         CustomUserDetails userDetails = new CustomUserDetails(username, role);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
-
-
 }

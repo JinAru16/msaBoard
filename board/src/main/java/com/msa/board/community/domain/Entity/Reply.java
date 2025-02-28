@@ -1,10 +1,8 @@
 package com.msa.board.community.domain.Entity;
 
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -17,11 +15,13 @@ public class Reply {
 
     @Id
     @GeneratedValue
+    @Column(name = "reply_id")
     private Long id;
 
     private String replyContent;
-
-    @ManyToOne
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "community_id")
     private Community community;
 
 
