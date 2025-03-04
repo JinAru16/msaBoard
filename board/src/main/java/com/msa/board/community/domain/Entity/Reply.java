@@ -15,13 +15,13 @@ public class Reply {
 
     @Id
     @GeneratedValue
-    @Column(name = "reply_id")
+  //  @Column(name = "reply_id")
     private Long id;
 
     private String replyContent;
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "community_id")
+   // @JoinColumn(name = "community_id")
     private Community community;
 
 

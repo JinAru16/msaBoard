@@ -4,6 +4,7 @@ import com.msa.board.common.exception.BoardException;
 import com.msa.board.common.exception.UserException;
 import com.msa.board.community.domain.Entity.Community;
 import com.msa.board.community.domain.request.CommunityDeleteRequest;
+import com.msa.board.community.domain.request.CommunityPost;
 import com.msa.board.community.domain.request.CommunityRequest;
 import com.msa.board.community.domain.response.CommunityResponse;
 import com.msa.board.community.repository.CommunityRepository;
@@ -24,8 +25,8 @@ import java.util.stream.Stream;
 public class CommunityService {
     private final CommunityRepository communityRepository;
 
-    public Community addCommunity(UserDetails userDetails, CommunityRequest communityRequest) {
-        Community community = new Community(userDetails, communityRequest);
+    public Community addCommunity(UserDetails userDetails, CommunityPost post) {
+        Community community = new Community(userDetails, post);
          return communityRepository.save(community);
     }
 

@@ -2,6 +2,7 @@ package com.msa.board.community.controller;
 
 import com.msa.board.community.domain.Entity.Community;
 import com.msa.board.community.domain.request.CommunityDeleteRequest;
+import com.msa.board.community.domain.request.CommunityPost;
 import com.msa.board.community.domain.request.CommunityRequest;
 import com.msa.board.community.domain.response.CommunityResponse;
 import com.msa.board.community.service.CommunityService;
@@ -29,9 +30,9 @@ public class CommunityController {
     }
 
     @PostMapping("/community")
-    public ResponseEntity<?> addCommunity(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CommunityRequest community) {
+    public ResponseEntity<?> addCommunity(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CommunityPost post) {
 
-        Community save = communityService.addCommunity(userDetails, community);
+        Community save = communityService.addCommunity(userDetails, post);
 
         return ResponseEntity
                 .ok()

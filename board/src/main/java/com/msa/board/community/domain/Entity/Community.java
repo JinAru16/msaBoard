@@ -2,6 +2,7 @@ package com.msa.board.community.domain.Entity;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.msa.board.community.domain.request.CommunityPost;
 import com.msa.board.community.domain.request.CommunityRequest;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -19,7 +20,6 @@ public class Community {
 
     @Id
     @GeneratedValue
-    @Column(name = "community_id")
     private Long id;
     private String title;
     private String content;
@@ -27,7 +27,7 @@ public class Community {
 
     @JsonIgnore
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reply_id")
+   // @JoinColumn(name = "reply_id")
     private List<Reply> reply;
 
     private LocalDateTime createTime;
@@ -49,5 +49,13 @@ public class Community {
         this.createTime = LocalDateTime.now();
         this.updateTime = LocalDateTime.now();
 
+    }
+
+    public Community(UserDetails userDetails, CommunityPost post){
+        this.title = post.getTitle();
+        this.content = post.getContent();
+        this.username = userDetails.getUsername();
+        this.createTime = LocalDateTime.now();
+        this.updateTime = LocalDateTime.now();
     }
 }
