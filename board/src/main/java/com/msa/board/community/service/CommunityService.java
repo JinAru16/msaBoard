@@ -6,6 +6,7 @@ import com.msa.board.community.domain.Entity.Community;
 import com.msa.board.community.domain.request.CommunityDeleteRequest;
 import com.msa.board.community.domain.request.CommunityPost;
 import com.msa.board.community.domain.request.CommunityRequest;
+import com.msa.board.community.domain.response.CommunityListResponse;
 import com.msa.board.community.domain.response.CommunityResponse;
 import com.msa.board.community.repository.CommunityRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
@@ -66,16 +69,12 @@ public class CommunityService {
     private boolean isSameUser(UserDetails userDetails, String username){
         return userDetails.getUsername().equals(username);
     }
-    
-    private boolean isAdmin(UserDetails userDetails){
-        Optional<String> first = userDetails.getAuthorities()
-                .stream().map(GrantedAuthority::getAuthority)
-                .filter("AMDIN"::equals)
-                .findFirst();
 
-        if(first.isPresent()){
-            return true;
-        }
+    private boolean isAdmin(UserDetails userDetails) {
         return false;
+    }
+
+    public List<CommunityListResponse> findAll() {
+        return communityRepository.findAll().stream().map(CommunityListResponse::new).collect(Collectors.toList());
     }
 }

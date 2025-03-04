@@ -12,18 +12,16 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class CommunityResponse {
+public class CommunityListResponse {
     private Long id;
-    private String title;
-    private String content;
     private String username;
+    private String title;
     private LocalDateTime updateTime;
 
-    public CommunityResponse(Community community) {
+    public CommunityListResponse(Community community) {
         this.id = community.getId();
-        this.title = community.getTitle();
-        this.content = community.getContent();
         this.username = community.getUsername();
+        this.title = community.getTitle();
         this.updateTime = community.getUpdateTime();
     }
 }
