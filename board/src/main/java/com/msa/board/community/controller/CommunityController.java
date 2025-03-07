@@ -33,6 +33,7 @@ public class CommunityController {
     @GetMapping("/community/{id}")
     public ResponseEntity<CommunityResponse> findOne(@PathVariable Long id) {
 
+
         CommunityResponse one = communityService.findOne(id);
 
         return ResponseEntity
