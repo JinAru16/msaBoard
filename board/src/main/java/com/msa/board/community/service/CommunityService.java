@@ -10,6 +10,7 @@ import com.msa.board.community.domain.response.CommunityListResponse;
 import com.msa.board.community.domain.response.CommunityResponse;
 import com.msa.board.community.repository.CommunityRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ import java.util.stream.Stream;
 public class CommunityService {
     private final CommunityRepository communityRepository;
 
+    private static final String CACHE_KEY_PREFIX = "board:"; // ✅ Redis Key Prefix
+    private static final long CACHE_EXPIRATION = 600; // ✅ 캐시 유지시간 (초) = 10분
+
     public Community addCommunity(UserDetails userDetails, CommunityPost post) {
         Community community = new Community(userDetails, post);
          return communityRepository.save(community);
@@ -35,6 +39,15 @@ public class CommunityService {
 
 
     public CommunityResponse findOne(Long id) {
+        String cacheKey = CACHE_KEY_PREFIX + id;
+        RedisTemplate<String, Community> redisTemplate = new RedisTemplate<>(); // ✅ Redis 사용
+
+        // 1️⃣ Redis에서 캐시 조회
+        Community cachedBoard = (Community) redisTemplate.opsForValue().get(cacheKey);
+        if (cachedBoard != null) {
+            return new CommunityResponse(cachedBoard); // ✅ 캐시 데이터 반환
+        }
+
         Optional<Community> posted = communityRepository.findById(id);
         return new CommunityResponse(posted.get());
     }
