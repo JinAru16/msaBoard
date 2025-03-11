@@ -8,6 +8,7 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -19,24 +20,31 @@ public class RedisConfig {
     @Value("${spring.data.redis.database}")
     private int boardRedisIndex;
 
-    @Bean
-    public RedisTemplate<String, String> redisTemplate() {
-        RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
-
-        redisTemplate.setConnectionFactory(connectionFactory(boardRedisIndex));
-        // ✅ key-value를 문자열로 저장하도록 설정 (JSON 직렬화 방식도 가능)
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
-
-        return redisTemplate;
+    @Bean(name = "boardCacheRedisTemplate") // 게시글 캐싱용
+    public RedisTemplate<String, Object> boardCacheRedisTemplate() {
+        return createRedisTemplate(boardRedisIndex); // ✅ 게시글 캐싱은 database: 1 사용
     }
 
-    private RedisConnectionFactory connectionFactory(int redisIndex) {
-        LettuceConnectionFactory factory = (LettuceConnectionFactory) redisConnectionFactory;
+    @Bean(name = "blacklistRedisTemplate") // 블랙리스트 검증용
+    public RedisTemplate<String, Object> blacklistRedisTemplate() {
+        return createRedisTemplate(0); // ✅ 블랙리스트 검증은 database: 0 사용
+    }
+
+    private RedisTemplate<String, Object> createRedisTemplate(int databaseIndex) {
         RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
+        LettuceConnectionFactory factory = (LettuceConnectionFactory) redisConnectionFactory;
         config.setHostName(factory.getHostName());
         config.setPort(factory.getPort());
-        config.setDatabase(redisIndex);
-        return new LettuceConnectionFactory(config);
+        config.setDatabase(databaseIndex);
+        LettuceConnectionFactory connectionFactory = new LettuceConnectionFactory(config);
+        connectionFactory.afterPropertiesSet();
+
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(connectionFactory);
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setHashKeySerializer(new StringRedisSerializer());
+        redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+        return redisTemplate;
     }
 }

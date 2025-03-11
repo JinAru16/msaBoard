@@ -21,7 +21,6 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
     private final JwtConfig jwtConfig;
-    private final RedisTemplate redisTemplate;
 
     public String getUsername(String token) {
         return Jwts.parserBuilder()
@@ -40,9 +39,6 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            if(redisTemplate.hasKey(token)){
-                throw new UserException("로그아웃된 사용자");
-            }
             Jwts.parser().setSigningKey(jwtConfig.getSecretKey()).parseClaimsJws(token);
             return true;
         } catch (Exception e) {

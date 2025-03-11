@@ -4,8 +4,10 @@ import com.msa.board.common.exception.CustomAuthenticationEntryPoint;
 import com.msa.board.common.jwt.JwtAuthenticationFilter;
 import com.msa.board.common.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -20,15 +22,30 @@ import org.springframework.web.filter.CorsFilter;
 
 @EnableWebSecurity
 @Configuration
-@RequiredArgsConstructor
 public class SecurityConfig {
     private final CorsFilter corsFilter; // 🔥 CORS 필터 주입 (Spring Security 6.x 이후 방식)
     private final JwtTokenProvider jwtTokenProvider; // JWT 토큰 관리
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;// 필터단에서 발생한 에러 처림.
 
+ // ✅ 블랙리스트 Redis만 사용하도록 지정
+    private final RedisTemplate<String, Object> blackListRedisTemplate;
+
+    // ✅ 생성자에서 @Qualifier 적용 (필드에는 X)
+    public SecurityConfig(
+            CorsFilter corsFilter,
+            JwtTokenProvider jwtTokenProvider,
+            CustomAuthenticationEntryPoint authenticationEntryPoint,
+            @Qualifier("blacklistRedisTemplate") RedisTemplate<String, Object> blackListRedisTemplate) {
+        this.corsFilter = corsFilter;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.blackListRedisTemplate = blackListRedisTemplate;
+    }
+
+
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider); // ✅ 직접 생성
+        return new JwtAuthenticationFilter(jwtTokenProvider, blackListRedisTemplate); // ✅ 직접 생성
     }
 
     @Bean
