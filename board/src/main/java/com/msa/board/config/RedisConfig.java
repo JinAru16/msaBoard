@@ -55,6 +55,12 @@ public class RedisConfig {
         return createRedisTemplate(redisConnectionFactory, authRedisIndex); // ✅ 블랙리스트 검증은 database: 0 사용
     }
 
+    @Bean(name = "boardRedisTemplate") // 블랙리스트 검증용
+    public RedisTemplate<String, Object> boardRedisTemplate() {
+        return createRedisTemplate(redisConnectionFactory, boardRedisIndex); // ✅ 블랙리스트 검증은 database: 0 사용
+    }
+
+
     // ✅ 게시글 캐싱용 CacheManager
     @Bean(name = "boardCacheManager")
     public RedisCacheManager boardCacheManager() {
@@ -74,7 +80,7 @@ public class RedisConfig {
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)));
 
-        return RedisCacheManager.builder(boardRedisFactory) // ✅ 여기에서 boardRedisFactory 사용
+        return RedisCacheManager.builder(boardRedisTemplate().getRequiredConnectionFactory()) // ✅ 직접 factory 지정
                 .cacheDefaults(config)
                 .build();
     }

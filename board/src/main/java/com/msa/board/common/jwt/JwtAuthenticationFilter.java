@@ -22,8 +22,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final RedisTemplate<String, Object> blackListRedisTemplate;
 
     // ✅ 생성자에서 @Qualifier 적용
-    public JwtAuthenticationFilter(
-            JwtTokenProvider jwtTokenProvider,
+    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider,
             @Qualifier("blacklistRedisTemplate")
             RedisTemplate<String, Object> blackListRedisTemplate) {
         this.jwtTokenProvider = jwtTokenProvider;
