@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,14 +37,18 @@ public class RedisConfig {
     @Value("${spring.data.redis.board.database}")
     private int boardRedisIndex;
 
-    @Value("${spring.data.redis.auth.host}")
-    private String authRedisHost;
-
     @Value("${spring.data.redis.board.host}")
     private String boardRedisHost;
 
     @Value("${spring.data.redis.board.port}")
     private int boardRedisPort;
+
+    @Value("${spring.data.redis.auth.host}")
+    private String authHost;
+
+    @Value("${spring.data.redis.board.host}")
+    private String boardHost;
+
 
     @Bean(name = "blacklistRedisTemplate") // 블랙리스트 검증용
     public RedisTemplate<String, Object> blacklistRedisTemplate() {
@@ -58,13 +63,20 @@ public class RedisConfig {
         objectMapper.registerModule(new JavaTimeModule()); // ✅ JavaTimeModule 추가
         objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
 
+        // ✅ 🚀 board-server에서 사용할 RedisConnectionFactory 생성
+        LettuceConnectionFactory boardRedisFactory = new LettuceConnectionFactory(new RedisStandaloneConfiguration(boardRedisHost, boardRedisPort));
+        boardRedisFactory.setDatabase(boardRedisIndex); // ✅ board-server에서 사용할 DB Index
+        boardRedisFactory.afterPropertiesSet(); // 🚨 꼭 초기화 필요!
+
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofMinutes(10)) // ✅ TTL 10분
                 .disableCachingNullValues()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)));
 
-        return RedisCacheManager.builder(redisConnectionFactory).cacheDefaults(config).build();
+        return RedisCacheManager.builder(boardRedisFactory) // ✅ 여기에서 boardRedisFactory 사용
+                .cacheDefaults(config)
+                .build();
     }
 
     private RedisTemplate<String, Object> createRedisTemplate(RedisConnectionFactory redisConnectionFactory, int databaseIndex) {
