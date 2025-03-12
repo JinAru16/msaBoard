@@ -1,19 +1,14 @@
 package com.msa.board.common.jwt;
 
-import com.msa.board.common.exception.UserException;
 import com.msa.board.config.JwtConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.Date;
 
 

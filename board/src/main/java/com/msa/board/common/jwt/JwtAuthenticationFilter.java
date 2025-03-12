@@ -19,13 +19,13 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
-    @Qualifier("blacklistRedisTemplate")  // ✅ 블랙리스트 Redis만 사용하도록 지정
     private final RedisTemplate<String, Object> blackListRedisTemplate;
 
     // ✅ 생성자에서 @Qualifier 적용
     public JwtAuthenticationFilter(
             JwtTokenProvider jwtTokenProvider,
-            @Qualifier("blacklistRedisTemplate") RedisTemplate<String, Object> blackListRedisTemplate) {
+            @Qualifier("blacklistRedisTemplate")
+            RedisTemplate<String, Object> blackListRedisTemplate) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.blackListRedisTemplate = blackListRedisTemplate;
     }
@@ -36,10 +36,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String token = getTokenFromCookie(request);
 
-
-        if(token == null && blackListRedisTemplate.hasKey(token)){
+        if(token == null || blackListRedisTemplate.hasKey(token)){
             throw new UserException("로그아웃한 사용자입니다.");
         }
+
         if (token != null && jwtTokenProvider.validateToken(token)) { // JWT 검증
             Authentication auth = jwtTokenProvider.getAuthentication(token); // SecurityContext에 인증 정보 저장
             SecurityContextHolder.getContext().setAuthentication(auth);

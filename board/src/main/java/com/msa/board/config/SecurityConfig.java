@@ -27,8 +27,9 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider; // JWT 토큰 관리
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;// 필터단에서 발생한 에러 처림.
 
- // ✅ 블랙리스트 Redis만 사용하도록 지정
-    private final RedisTemplate<String, Object> blackListRedisTemplate;
+     // ✅ 블랙리스트 Redis만 사용하도록 지정
+     @Qualifier("blacklistRedisTemplate")
+     private final RedisTemplate<String, Object> blackListRedisTemplate;
 
     // ✅ 생성자에서 @Qualifier 적용 (필드에는 X)
     public SecurityConfig(

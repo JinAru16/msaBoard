@@ -41,4 +41,16 @@ public class ExceptionController {
                 .build();
         return response;
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(BoardException.class)
+    @ResponseBody
+    public ErrorResponse invalidCommunityHandler(BoardException e) {
+
+        ErrorResponse response =  ErrorResponse.builder()
+                .code("400")
+                .message("잘못된 요청입니다, " + e.getMessage())
+                .build();
+        return response;
+    }
 }
