@@ -6,12 +6,12 @@ import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Priority;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -26,10 +26,7 @@ import java.time.Duration;
 
 @Configuration
 @EnableCaching
-@RequiredArgsConstructor
 public class RedisConfig {
-
-    private final RedisConnectionFactory redisConnectionFactory;
 
     @Value("${spring.data.redis.auth.database}")
     private int authRedisIndex;
@@ -37,80 +34,94 @@ public class RedisConfig {
     @Value("${spring.data.redis.board.database}")
     private int boardRedisIndex;
 
+    @Value("${spring.data.redis.auth.host}")
+    private String authRedisHost;
+
+    @Value("${spring.data.redis.auth.port}")
+    private int authRedisPort;
+
     @Value("${spring.data.redis.board.host}")
     private String boardRedisHost;
 
     @Value("${spring.data.redis.board.port}")
     private int boardRedisPort;
 
-    @Value("${spring.data.redis.auth.host}")
-    private String authHost;
-
-    @Value("${spring.data.redis.board.host}")
-    private String boardHost;
-
-
-    @Bean(name = "blacklistRedisTemplate") // 블랙리스트 검증용
-    public RedisTemplate<String, Object> blacklistRedisTemplate() {
-        return createRedisTemplate(redisConnectionFactory, authRedisIndex); // ✅ 블랙리스트 검증은 database: 0 사용
+    // ✅ [1] 블랙리스트 검증용 Redis ConnectionFactory
+    @Bean(name = "authRedisConnectionFactory")
+    public RedisConnectionFactory authRedisConnectionFactory() {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(authRedisHost, authRedisPort);
+        config.setDatabase(authRedisIndex);
+        return new LettuceConnectionFactory(config);
     }
 
-    @Bean(name = "boardRedisTemplate") // 블랙리스트 검증용
-    public RedisTemplate<String, Object> boardRedisTemplate() {
-        return createRedisTemplate(redisConnectionFactory, boardRedisIndex); // ✅ 블랙리스트 검증은 database: 0 사용
+    // ✅ [2] 게시판 캐시용 Redis ConnectionFactory
+    @Bean(name = "boardRedisConnectionFactory")
+    public RedisConnectionFactory boardRedisConnectionFactory() {
+        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(boardRedisHost, boardRedisPort);
+        config.setDatabase(boardRedisIndex);
+        return new LettuceConnectionFactory(config);
     }
 
+    // ✅ [3] 기본 `redisTemplate` 빈 추가 (authRedisConnectionFactory 사용)
+    @Bean
+    @Primary
+    public RedisTemplate<String, Object> redisTemplate(
+            @Qualifier("authRedisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
+        return createRedisTemplate(redisConnectionFactory);
+    }
 
-    // ✅ 게시글 캐싱용 CacheManager
+    // ✅ [4] 블랙리스트 검증용 RedisTemplate
+    @Bean(name = "blacklistRedisTemplate")
+    public RedisTemplate<String, Object> blacklistRedisTemplate(
+            @Qualifier("authRedisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
+        return createRedisTemplate(redisConnectionFactory);
+    }
+
+    // ✅ [5] 게시판 캐시용 RedisTemplate
+    @Bean(name = "boardRedisTemplate")
+    public RedisTemplate<String, Object> boardRedisTemplate(
+            @Qualifier("boardRedisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
+        return createRedisTemplate(redisConnectionFactory);
+    }
+
+    // ✅ [6] 게시판 캐시용 CacheManager
     @Bean(name = "boardCacheManager")
-    public RedisCacheManager boardCacheManager() {
-        // ✅ ObjectMapper 설정 (LocalDateTime 지원 추가)
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule()); // ✅ JavaTimeModule 추가
-        objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-
-        // ✅ 🚀 board-server에서 사용할 RedisConnectionFactory 생성
-        LettuceConnectionFactory boardRedisFactory = new LettuceConnectionFactory(new RedisStandaloneConfiguration(boardRedisHost, boardRedisPort));
-        boardRedisFactory.setDatabase(boardRedisIndex); // ✅ board-server에서 사용할 DB Index
-        boardRedisFactory.afterPropertiesSet(); // 🚨 꼭 초기화 필요!
+    public RedisCacheManager boardCacheManager(
+            @Qualifier("boardRedisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
 
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(10)) // ✅ TTL 10분
+                .entryTtl(Duration.ofMinutes(10))
                 .disableCachingNullValues()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapper)));
+                .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer(getObjectMapper())));
 
-        return RedisCacheManager.builder(boardRedisTemplate().getRequiredConnectionFactory()) // ✅ 직접 factory 지정
+        return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(config)
                 .build();
     }
 
-    private RedisTemplate<String, Object> createRedisTemplate(RedisConnectionFactory redisConnectionFactory, int databaseIndex) {
-        // ✅ 기존 주입된 redisConnectionFactory 활용 (새로운 Factory 생성 X)
-        LettuceConnectionFactory factory = (LettuceConnectionFactory) redisConnectionFactory;
-        factory.setDatabase(databaseIndex); // ✅ 데이터베이스 Index만 변경 (새로운 Factory 생성 X)
-        factory.afterPropertiesSet(); // ✅ 초기화 수행
-
+    // ✅ [7] RedisTemplate 생성 메서드 (공통)
+    private RedisTemplate<String, Object> createRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory);
 
-        // ✅ ObjectMapper 설정 (LocalDateTime 지원 추가)
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule()); // 🔥 LocalDateTime 지원
-
-        // ✅ LinkedHashMap -> 지정한
-        objectMapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
-                ObjectMapper.DefaultTyping.NON_FINAL,
-                JsonTypeInfo.As.PROPERTY);
-
-        redisTemplate.setConnectionFactory(factory); // ✅ 기존 Factory 활용
+        // ✅ JSON 직렬화
         redisTemplate.setKeySerializer(new StringRedisSerializer());
-        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer(getObjectMapper()));
         redisTemplate.setHashKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
 
-        // ✅ Value Serializer 설정 (JSON 변환)
-        redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer(objectMapper));
-
         return redisTemplate;
+    }
+
+    // ✅ [8] ObjectMapper 설정 (LocalDateTime 지원)
+    private ObjectMapper getObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.activateDefaultTyping(
+                LaissezFaireSubTypeValidator.instance,
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY);
+        return objectMapper;
     }
 }

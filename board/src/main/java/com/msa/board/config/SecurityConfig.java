@@ -1,13 +1,24 @@
 package com.msa.board.config;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.msa.board.common.exception.CustomAuthenticationEntryPoint;
 import com.msa.board.common.jwt.JwtAuthenticationFilter;
 import com.msa.board.common.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,31 +33,15 @@ import org.springframework.web.filter.CorsFilter;
 
 @EnableWebSecurity
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
     private final CorsFilter corsFilter; // 🔥 CORS 필터 주입 (Spring Security 6.x 이후 방식)
     private final JwtTokenProvider jwtTokenProvider; // JWT 토큰 관리
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;// 필터단에서 발생한 에러 처림.
 
-     // ✅ 블랙리스트 Redis만 사용하도록 지정
-     @Qualifier("blacklistRedisTemplate")
-     private final RedisTemplate<String, Object> blackListRedisTemplate;
-
-    // ✅ 생성자에서 @Qualifier 적용 (필드에는 X)
-    public SecurityConfig(
-            CorsFilter corsFilter,
-            JwtTokenProvider jwtTokenProvider,
-            CustomAuthenticationEntryPoint authenticationEntryPoint,
-            @Qualifier("blacklistRedisTemplate") RedisTemplate<String, Object> blackListRedisTemplate) {
-        this.corsFilter = corsFilter;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.authenticationEntryPoint = authenticationEntryPoint;
-        this.blackListRedisTemplate = blackListRedisTemplate;
-    }
-
-
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider, blackListRedisTemplate); // ✅ 직접 생성
+        return new JwtAuthenticationFilter(jwtTokenProvider); // ✅ 직접 생성
     }
 
     @Bean
@@ -73,4 +68,6 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
 }

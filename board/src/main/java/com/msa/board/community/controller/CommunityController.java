@@ -8,6 +8,9 @@ import com.msa.board.community.domain.response.CommunityListResponse;
 import com.msa.board.community.domain.response.CommunityResponse;
 import com.msa.board.community.service.CommunityService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +25,9 @@ public class CommunityController {
 
     private final CommunityService communityService;
 
+    @Qualifier("blacklistRedisTemplate")
+    private final RedisTemplate<String, Object> blacklistRedisTemplate;
+
     @GetMapping("/community")
     public ResponseEntity<List<CommunityListResponse>> findAll(@AuthenticationPrincipal UserDetails userDetails) {
         List<CommunityListResponse> all = communityService.findAll();
@@ -31,7 +37,9 @@ public class CommunityController {
     }
 
     @GetMapping("/community/{id}")
-    public ResponseEntity<CommunityResponse> findOne(@PathVariable Long id) {
+    public ResponseEntity<CommunityResponse> findOne(@CookieValue(value = "jwt", required = false) String token, @PathVariable Long id) {
+        System.out.println("jwt: " + token);
+        blacklistRedisTemplate.hasKey(token);
         CommunityResponse one = communityService.findOne(id);
 
         return ResponseEntity

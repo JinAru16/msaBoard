@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,29 +17,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
-
-    private final RedisTemplate<String, Object> blackListRedisTemplate;
-
-    // ✅ 생성자에서 @Qualifier 적용
-    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider,
-            @Qualifier("blacklistRedisTemplate")
-            RedisTemplate<String, Object> blackListRedisTemplate) {
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.blackListRedisTemplate = blackListRedisTemplate;
-    }
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String token = getTokenFromCookie(request);
-
-        if(token == null || blackListRedisTemplate.hasKey(token)){
-            throw new UserException("로그아웃한 사용자입니다.");
-        }
-
         if (token != null && jwtTokenProvider.validateToken(token)) { // JWT 검증
             Authentication auth = jwtTokenProvider.getAuthentication(token); // SecurityContext에 인증 정보 저장
             SecurityContextHolder.getContext().setAuthentication(auth);
