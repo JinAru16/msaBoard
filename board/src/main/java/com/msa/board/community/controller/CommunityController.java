@@ -40,7 +40,7 @@ public class CommunityController {
     @GetMapping("/community/{id}")
     public ResponseEntity<CommunityResponse> findOne(@CookieValue(value = "jwt", required = false) String token, @PathVariable Long id) {
         System.out.println("jwt: " + token);
-        if(token == null || blacklistRedisTemplate.hasKey(token){
+        if(token == null || blacklistRedisTemplate.hasKey(token)){
             throw new UserException("로그아웃된 사용자입니다.");
         }
         CommunityResponse one = communityService.findOne(id);
