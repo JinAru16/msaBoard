@@ -1,5 +1,6 @@
 package com.msa.board.community.controller;
 
+import com.msa.board.common.exception.UserException;
 import com.msa.board.community.domain.Entity.Community;
 import com.msa.board.community.domain.request.CommunityDeleteRequest;
 import com.msa.board.community.domain.request.CommunityPost;
@@ -39,7 +40,9 @@ public class CommunityController {
     @GetMapping("/community/{id}")
     public ResponseEntity<CommunityResponse> findOne(@CookieValue(value = "jwt", required = false) String token, @PathVariable Long id) {
         System.out.println("jwt: " + token);
-        blacklistRedisTemplate.hasKey(token);
+        if(token == null || blacklistRedisTemplate.hasKey(token){
+            throw new UserException("로그아웃된 사용자입니다.");
+        }
         CommunityResponse one = communityService.findOne(id);
 
         return ResponseEntity
