@@ -39,9 +39,12 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider; // JWT 토큰 관리
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;// 필터단에서 발생한 에러 처림.
 
+    @Qualifier("blacklistRedisTemplate")
+    private final RedisTemplate<String, Object> blacklistRedisTemplate;
+
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider); // ✅ 직접 생성
+        return new JwtAuthenticationFilter(jwtTokenProvider, blacklistRedisTemplate); // ✅ 직접 생성
     }
 
     @Bean
