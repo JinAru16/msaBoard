@@ -64,7 +64,6 @@ public class RedisConfig {
 
     // ✅ [3] 기본 `redisTemplate` 빈 추가 (authRedisConnectionFactory 사용)
     @Bean
-    @Primary
     public RedisTemplate<String, Object> redisTemplate(
             @Qualifier("authRedisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
         return createRedisTemplate(redisConnectionFactory);
