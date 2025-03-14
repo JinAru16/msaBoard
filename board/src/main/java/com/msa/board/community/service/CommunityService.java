@@ -10,6 +10,7 @@ import com.msa.board.community.domain.response.CommunityListResponse;
 import com.msa.board.community.domain.response.CommunityResponse;
 import com.msa.board.community.repository.CommunityRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -57,12 +58,19 @@ public class CommunityService {
 
     }
 
-    public Long deleteCommunity(UserDetails userDetails, CommunityDeleteRequest communityDeleteRequest) {
-        if(isSameUser(userDetails, communityDeleteRequest.getUsername()) || isAdmin(userDetails)) {
-            communityRepository.deleteById(communityDeleteRequest.getId());
-            return communityDeleteRequest.getId();
-        }else{
-            throw new UserException("삭게 권한이 없습니다.");
+    @CacheEvict(value = "community", key = "#id", cacheManager = "boardCacheManager")
+    public Long deleteCommunity(UserDetails userDetails, Long id) {
+        Optional<Community> toDelete = communityRepository.findById(id);
+        if (toDelete.isPresent()) {
+            if(isSameUser(userDetails, toDelete.get().getUsername()) || isAdmin(userDetails)){
+                communityRepository.deleteById(id);
+                return id;
+            } else{
+                throw new UserException("삭제권한이 없습니다.");
+            }
+
+        } else{
+            throw new BoardException("게시글이 존재하지않습니다.");
         }
     }
 

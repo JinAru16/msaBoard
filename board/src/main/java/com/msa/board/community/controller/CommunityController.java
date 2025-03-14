@@ -37,7 +37,6 @@ public class CommunityController {
     @GetMapping("/community/{id}")
     public ResponseEntity<CommunityResponse> findOne(@CookieValue(value = "jwt", required = false) String token, @PathVariable Long id) {
         CommunityResponse one = communityService.findOne(id);
-
         return ResponseEntity
                 .ok()
                 .body(one);
@@ -63,9 +62,9 @@ public class CommunityController {
                 .body(communityResponse);
     }
 
-    @DeleteMapping("/community")
-    public ResponseEntity<?> deleteCommunity(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CommunityDeleteRequest communityDeleteRequest) {
-        Long deleteResponse = communityService.deleteCommunity(userDetails, communityDeleteRequest);
+    @DeleteMapping("/community/{id}")
+    public ResponseEntity<?> deleteCommunity(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long id) {
+        Long deleteResponse = communityService.deleteCommunity(userDetails, id);
         return ResponseEntity
                 .ok()
                 .body(deleteResponse);
