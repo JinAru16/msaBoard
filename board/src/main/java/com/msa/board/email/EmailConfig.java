@@ -13,9 +13,9 @@ public class EmailConfig {
     public JavaMailSender CoreMailSender(){
         CommonEmail commonEmail = CommonEmail.builder()
                 .host("smtp.gmail.com")
-                .port("345")
-                .username("admin@gmail.com")
-                .password("password")
+                .port("456")
+                .username("jinaru0131")
+                .password("AdminMail.password")
                 .mailSecurity(MailSecurity.STARTTLS)
                 .build();
 
