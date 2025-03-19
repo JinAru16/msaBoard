@@ -32,6 +32,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.cloud:spring-cloud-config-client'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    //email 인증
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2' // 🔥 버전 맞춰서 사용

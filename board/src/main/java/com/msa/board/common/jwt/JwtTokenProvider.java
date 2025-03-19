@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
@@ -34,7 +36,11 @@ public class JwtTokenProvider {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parser().setSigningKey(jwtConfig.getSecretKey()).parseClaimsJws(token);
+            byte[] keyBytes = jwtConfig.getSecretKey().getBytes(StandardCharsets.UTF_8);
+            Jwts.parserBuilder()
+                    .setSigningKey(new SecretKeySpec(keyBytes, "HmacSHA256"))  // 서명 검증을 위한 키 설정
+                    .build()
+                    .parseClaimsJws(token);
             return true;
         } catch (Exception e) {
             return false;
@@ -43,15 +49,22 @@ public class JwtTokenProvider {
 
     // ✅ JWT에서 Claims(페이로드) 추출하는 메서드
     private Claims getClaims(String token) {
+
+        byte[] keyBytes = jwtConfig.getSecretKey().getBytes(StandardCharsets.UTF_8);
+
         return Jwts.parserBuilder()
-                .setSigningKey(jwtConfig.getSecretKey())  // 서명 검증을 위한 키 설정
+                .setSigningKey(new SecretKeySpec(keyBytes, "HmacSHA256"))  // 서명 검증을 위한 키 설정
                 .build()
                 .parseClaimsJws(token)  // JWT 파싱 및 검증
                 .getBody();  // Claims (페이로드) 반환
     }
 
     public Authentication getAuthentication(String token) {
-        Claims claims = Jwts.parser().setSigningKey(jwtConfig.getSecretKey()).parseClaimsJws(token).getBody();
+        byte[] keyBytes = jwtConfig.getSecretKey().getBytes(StandardCharsets.UTF_8);
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(new SecretKeySpec(keyBytes, "HmacSHA256"))  // 서명 검증을 위한 키 설정
+                .build()
+                .parseClaimsJws(token).getBody();
         String username = claims.getSubject();
         String role = claims.get("role", String.class);
 
