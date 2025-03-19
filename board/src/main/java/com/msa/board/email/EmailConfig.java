@@ -12,10 +12,10 @@ public class EmailConfig {
     @Bean
     public JavaMailSender CoreMailSender(){
         CommonEmail commonEmail = CommonEmail.builder()
-                .host("smtp.gmail.com")
-                .port("456")
+                .host("smtp.gmail.co")
+                .port("465")
                 .username("jinaru0131")
-                .password("AdminMail.password")
+                .password("Skrktkzl123!")
                 .mailSecurity(MailSecurity.STARTTLS)
                 .build();
 
