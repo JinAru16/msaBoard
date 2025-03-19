@@ -11,6 +11,7 @@ import java.util.Properties;
 public class CommonEmail {
 
   JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+  MailSecurity mailSecurity ;
 
   @Builder
   public CommonEmail(String host, String port, String username, String password, MailSecurity mailSecurity) {
@@ -26,18 +27,15 @@ public class CommonEmail {
         Properties pt = new Properties();
         switch (mailSecurity) {
             case SMPT:
-                pt.put("mail.smtp.socketFactory.port", 25);
                 pt.put("mail.smtp.auth", false);
                 pt.put("mail.smtp.starttls.enable", false);
                 pt.put("mail.smtp.starttls.required", false);
                 break;
             case STARTTLS:
-                pt.put("mail.smtp.socketFactory.port", 587);
                 pt.put("mail.smtp.auth", false);
                 pt.put("mail.smtp.starttls.enable", true);
                 pt.put("mail.smtp.starttls.required", true);
             case SSL:
-                pt.put("mail.smtp.socketFactory.port", 465);
                 pt.put("mail.smtp.auth", true);
                 pt.put("mail.smtp.starttls.enable", true);
                 pt.put("mail.smtp.starttls.required", true);

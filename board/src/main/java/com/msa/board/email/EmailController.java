@@ -28,10 +28,10 @@ public class EmailController {
 
         MimeMessage  message = mailSender.createMimeMessage();
 
-        message.addRecipients(MimeMessage.RecipientType.TO, "wjdcksndr11@naver.com");//보내는 대상
+        message.addRecipients(MimeMessage.RecipientType.TO, "wjdcksdnr11@naver.com");//보내는 대상
         message.setSubject("이메일 인증 테스트");//제목
         message.setText("test email", "utf-8", "html");//내용
-        message.setFrom(new InternetAddress("jinaru0131","nevWebAdmin"));//보내는 사람
+        message.setFrom(new InternetAddress("jinaru0131","Admin"));//보내는 사람
 
 
         mailSender.send(message);
