@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,19 +42,19 @@ public class Community {
         this.title = title;
     }
 
-    public Community(UserDetails userDetails, CommunityRequest communityRequest){
+    public Community(String headerUsername, CommunityRequest communityRequest){
         this.title = communityRequest.getTitle();
         this.content = communityRequest.getContent();
-        this.username = userDetails.getUsername();
+        this.username = headerUsername;
         this.createTime = LocalDateTime.now();
         this.updateTime = LocalDateTime.now();
 
     }
 
-    public Community(UserDetails userDetails, CommunityPost post){
+    public Community(String headerUsername, CommunityPost post){
         this.title = post.getTitle();
         this.content = post.getContent();
-        this.username = userDetails.getUsername();
+        this.username = headerUsername;
         this.createTime = LocalDateTime.now();
         this.updateTime = LocalDateTime.now();
     }

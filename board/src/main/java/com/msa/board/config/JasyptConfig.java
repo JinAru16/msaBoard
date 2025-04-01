@@ -3,7 +3,6 @@ package com.msa.board.config;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.iv.NoIvGenerator;
-import org.jasypt.salt.RandomSaltGenerator;
 import org.jasypt.salt.ZeroSaltGenerator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

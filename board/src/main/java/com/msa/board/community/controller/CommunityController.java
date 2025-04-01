@@ -8,8 +8,6 @@ import com.msa.board.community.domain.response.CommunityResponse;
 import com.msa.board.community.service.CommunityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,7 +21,7 @@ public class CommunityController {
     private final CommunityService communityService;
 
     @GetMapping("/community")
-    public ResponseEntity<List<CommunityListResponse>> findAll(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<List<CommunityListResponse>> findAll() {
         List<CommunityListResponse> all = communityService.findAll();
         return ResponseEntity
                 .ok()
@@ -42,9 +40,10 @@ public class CommunityController {
     }
 
     @PostMapping("/community")
-    public ResponseEntity<?> addCommunity(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CommunityPost post) {
+    public ResponseEntity<?> addCommunity(@RequestHeader Map<String, String> headers,
+                                          @RequestBody CommunityPost post) {
 
-        Community save = communityService.addCommunity(userDetails, post);
+        Community save = communityService.addCommunity(headers, post);
 
         return ResponseEntity
                 .ok()
@@ -52,9 +51,9 @@ public class CommunityController {
     }
 
     @PutMapping("/community")
-    public ResponseEntity<?> editCommunity(@AuthenticationPrincipal UserDetails userDetails, @RequestBody CommunityRequest community) {
+    public ResponseEntity<?> editCommunity(@RequestHeader Map<String, String> headers, @RequestBody CommunityRequest community) {
 
-        CommunityResponse communityResponse = communityService.editCommunity(userDetails, community);
+        CommunityResponse communityResponse = communityService.editCommunity(headers, community);
 
         return ResponseEntity
                 .ok()
@@ -62,8 +61,8 @@ public class CommunityController {
     }
 
     @DeleteMapping("/community/{id}")
-    public ResponseEntity<?> deleteCommunity(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long id) {
-        Long deleteResponse = communityService.deleteCommunity(userDetails, id);
+    public ResponseEntity<?> deleteCommunity(@RequestHeader Map<String, String> headers, @PathVariable Long id) {
+        Long deleteResponse = communityService.deleteCommunity(headers, id);
         return ResponseEntity
                 .ok()
                 .body(deleteResponse);

@@ -28,17 +28,17 @@ import java.time.Duration;
 @EnableCaching
 public class RedisConfig {
 
-    @Value("${spring.data.redis.auth.database}")
-    private int authRedisIndex;
+//    @Value("${spring.data.redis.auth.database}")
+//    private int authRedisIndex;
 
     @Value("${spring.data.redis.board.database}")
     private int boardRedisIndex;
 
-    @Value("${spring.data.redis.auth.host}")
-    private String authRedisHost;
-
-    @Value("${spring.data.redis.auth.port}")
-    private int authRedisPort;
+//    @Value("${spring.data.redis.auth.host}")
+//    private String authRedisHost;
+//
+//    @Value("${spring.data.redis.auth.port}")
+//    private int authRedisPort;
 
     @Value("${spring.data.redis.board.host}")
     private String boardRedisHost;
@@ -47,12 +47,12 @@ public class RedisConfig {
     private int boardRedisPort;
 
     // ✅ [1] 블랙리스트 검증용 Redis ConnectionFactory
-    @Bean(name = "authRedisConnectionFactory")
-    public RedisConnectionFactory authRedisConnectionFactory() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(authRedisHost, authRedisPort);
-        config.setDatabase(authRedisIndex);
-        return new LettuceConnectionFactory(config);
-    }
+//    @Bean(name = "authRedisConnectionFactory")
+//    public RedisConnectionFactory authRedisConnectionFactory() {
+//        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(authRedisHost, authRedisPort);
+//        config.setDatabase(authRedisIndex);
+//        return new LettuceConnectionFactory(config);
+//    }
 
     // ✅ [2] 게시판 캐시용 Redis ConnectionFactory
     @Bean(name = "boardRedisConnectionFactory")
@@ -63,18 +63,18 @@ public class RedisConfig {
     }
 
     // ✅ [3] 기본 `redisTemplate` 빈 추가 (authRedisConnectionFactory 사용)
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate(
-            @Qualifier("authRedisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
-        return createRedisTemplate(redisConnectionFactory);
-    }
+//    @Bean
+//    public RedisTemplate<String, Object> redisTemplate(
+//            @Qualifier("authRedisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
+//        return createRedisTemplate(redisConnectionFactory);
+//    }
 
     // ✅ [4] 블랙리스트 검증용 RedisTemplate
-    @Bean(name = "blacklistRedisTemplate")
-    public RedisTemplate<String, Object> blacklistRedisTemplate(
-            @Qualifier("authRedisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
-        return createRedisTemplate(redisConnectionFactory);
-    }
+//    @Bean(name = "blacklistRedisTemplate")
+//    public RedisTemplate<String, Object> blacklistRedisTemplate(
+//            @Qualifier("authRedisConnectionFactory") RedisConnectionFactory redisConnectionFactory) {
+//        return createRedisTemplate(redisConnectionFactory);
+//    }
 
     // ✅ [5] 게시판 캐시용 RedisTemplate
     @Bean(name = "boardRedisTemplate")

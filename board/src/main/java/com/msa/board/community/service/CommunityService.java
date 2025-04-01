@@ -3,7 +3,6 @@ package com.msa.board.community.service;
 import com.msa.board.common.exception.BoardException;
 import com.msa.board.common.exception.UserException;
 import com.msa.board.community.domain.Entity.Community;
-import com.msa.board.community.domain.request.CommunityDeleteRequest;
 import com.msa.board.community.domain.request.CommunityPost;
 import com.msa.board.community.domain.request.CommunityRequest;
 import com.msa.board.community.domain.response.CommunityListResponse;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
@@ -34,18 +32,22 @@ public class CommunityService {
     }
 
 
-    public Community addCommunity(UserDetails userDetails, CommunityPost post) {
-        Community community = new Community(userDetails, post);
+    public Community addCommunity(Map<String, String> headers, CommunityPost post) {
+        String username = headers.get("x-auth-id");
+        Community community = new Community(username, post);
         return communityRepository.save(community);
     }
 
 
     @CachePut(value = "community", key = "#communityRequest.getId()", cacheManager = "boardCacheManager")
-    public CommunityResponse editCommunity(UserDetails userDetails, CommunityRequest communityRequest) {
+    public CommunityResponse editCommunity(Map<String, String> headers, CommunityRequest communityRequest) {
+
+        String username = headers.get("x-auth-id");
+        String role = headers.get("x-auth-role");
 
         Optional<Community> communityToEdit = communityRepository.findById(communityRequest.getId());
         if (communityToEdit.isPresent()) {
-            if(isSameUser(userDetails, communityToEdit.get().getUsername()) || isAdmin(userDetails)){
+            if(isSameUser(username, communityToEdit.get().getUsername()) || isAdmin(role)){
                 communityToEdit.get().editTitle(communityRequest.getTitle());
                 communityToEdit.get().editContent(communityRequest.getContent());
                 return new CommunityResponse(communityRepository.save(communityToEdit.get()));
@@ -59,10 +61,10 @@ public class CommunityService {
     }
 
     @CacheEvict(value = "community", key = "#id", cacheManager = "boardCacheManager")
-    public Long deleteCommunity(UserDetails userDetails, Long id) {
+    public Long deleteCommunity(Map<String, String> headers, Long id) {
         Optional<Community> toDelete = communityRepository.findById(id);
         if (toDelete.isPresent()) {
-            if(isSameUser(userDetails, toDelete.get().getUsername()) || isAdmin(userDetails)){
+            if(isSameUser(headers.get("x-auth-id"), toDelete.get().getUsername()) || isAdmin(headers.get("x-auth-role"))){
                 communityRepository.deleteById(id);
                 return id;
             } else{
@@ -74,11 +76,11 @@ public class CommunityService {
         }
     }
 
-    private boolean isSameUser(UserDetails userDetails, String username){
-        return userDetails.getUsername().equals(username);
+    private boolean isSameUser(String headerUsername, String username){
+        return headerUsername.equals(username);
     }
 
-    private boolean isAdmin(UserDetails userDetails) {
+    private boolean isAdmin(String headerUserRole) {
         return false;
     }
 
