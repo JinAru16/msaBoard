@@ -33,7 +33,6 @@ public class CommunityController {
                                                      @RequestHeader Map<String, String> headers,
                                                      @PathVariable Long id) {
         CommunityResponse one = communityService.findOne(id);
-        headers.forEach((k, v) -> System.out.println(k + " : " + v));
         return ResponseEntity
                 .ok()
                 .body(one);

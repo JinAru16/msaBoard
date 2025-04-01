@@ -9,6 +9,7 @@ import com.msa.board.community.domain.response.CommunityListResponse;
 import com.msa.board.community.domain.response.CommunityResponse;
 import com.msa.board.community.repository.CommunityRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -20,12 +21,14 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class CommunityService {
     private final CommunityRepository communityRepository;
 
 
     @Cacheable(value = "community", key = "#id", cacheManager = "boardCacheManager")
     public CommunityResponse findOne(Long id) {
+        log.info("[Cache Miss] DB 조회 실행 - 게시글 ID: {}", id);
         return communityRepository.findById(id)
                 .map(CommunityResponse::new)
                 .orElseThrow(() -> new BoardException("해당 게시글이 존재하지않습니다."));
@@ -46,6 +49,7 @@ public class CommunityService {
         String role = headers.get("x-auth-role");
 
         Optional<Community> communityToEdit = communityRepository.findById(communityRequest.getId());
+        log.info("[Cache Update] 게시글 수정 - ID: {}, 요청자: {}", communityRequest.getId(), username);
         if (communityToEdit.isPresent()) {
             if(isSameUser(username, communityToEdit.get().getUsername()) || isAdmin(role)){
                 communityToEdit.get().editTitle(communityRequest.getTitle());
@@ -66,6 +70,7 @@ public class CommunityService {
         if (toDelete.isPresent()) {
             if(isSameUser(headers.get("x-auth-id"), toDelete.get().getUsername()) || isAdmin(headers.get("x-auth-role"))){
                 communityRepository.deleteById(id);
+                log.warn("[Cache Evict] 게시글 삭제 - ID: {}, 요청자: {}", id, headers.get("x-auth-id"));
                 return id;
             } else{
                 throw new UserException("삭제권한이 없습니다.");
