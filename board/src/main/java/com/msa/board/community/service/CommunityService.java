@@ -38,6 +38,7 @@ public class CommunityService {
     public Community addCommunity(Map<String, String> headers, CommunityPost post) {
         String username = headers.get("x-auth-id");
         Community community = new Community(username, post);
+        log.info("Community Inserted : {}, {}, {}", community.getTitle(), community.getUsername(), community.getCreateTime());
         return communityRepository.save(community);
     }
 
@@ -86,7 +87,7 @@ public class CommunityService {
     }
 
     private boolean isAdmin(String headerUserRole) {
-        return false;
+        return headerUserRole.equals("admin");
     }
 
     public List<CommunityListResponse> findAll() {
