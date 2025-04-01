@@ -1,23 +1,19 @@
 package com.msa.board.community.controller;
 
-import com.msa.board.common.exception.UserException;
 import com.msa.board.community.domain.Entity.Community;
-import com.msa.board.community.domain.request.CommunityDeleteRequest;
 import com.msa.board.community.domain.request.CommunityPost;
 import com.msa.board.community.domain.request.CommunityRequest;
 import com.msa.board.community.domain.response.CommunityListResponse;
 import com.msa.board.community.domain.response.CommunityResponse;
 import com.msa.board.community.service.CommunityService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,8 +31,11 @@ public class CommunityController {
     }
 
     @GetMapping("/community/{id}")
-    public ResponseEntity<CommunityResponse> findOne(@CookieValue(value = "jwt", required = false) String token, @PathVariable Long id) {
+    public ResponseEntity<CommunityResponse> findOne(@CookieValue(value = "jwt", required = false) String token,
+                                                     @RequestHeader Map<String, String> headers,
+                                                     @PathVariable Long id) {
         CommunityResponse one = communityService.findOne(id);
+        headers.forEach((k, v) -> System.out.println(k + " : " + v));
         return ResponseEntity
                 .ok()
                 .body(one);
