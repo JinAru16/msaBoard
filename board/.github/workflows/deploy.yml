@@ -38,5 +38,6 @@ jobs:
           username: ec2-user
           key: ${{ secrets.EC2_KEY }}
           script: |
+            cd /home/ec2-user/apps
             docker compose -f /home/ec2-user/apps/docker-compose.yml down
             docker compose -f /home/ec2-user/apps/docker-compose.yml up -d
