@@ -27,6 +27,7 @@ jobs:
 
     - name: Build JAR
       run: ./gradlew clean build
+      working-directory: board
 
     - name: Copy JAR to EC2
       uses: appleboy/scp-action@v0.1.4
@@ -34,7 +35,7 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ec2-user
         key: ${{ secrets.EC2_KEY }}
-        source: "build/libs/*.jar"
+        source: "boardbuild/libs/*.jar"
         target: "/home/ec2-user/apps/board/board"  # board 서비스라면
 
     - name: SSH & Docker restart
