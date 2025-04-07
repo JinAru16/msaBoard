@@ -56,12 +56,6 @@ class ReplyServiceTest {
         replyRepository.saveAll(list);
     }
 
-    @Test
-    void findAllReplyOfCommunity(){
-        Community communityForReply = communityRepository.findById(3L).orElseThrow(() -> new BoardException("Community not found"));
-
-
-    }
 
 
     @Test
