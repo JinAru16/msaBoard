@@ -43,3 +43,7 @@ out/
 .yml
 application.properties
 application.yml
+
+
+##$# Docker ###
+Dockerfile
