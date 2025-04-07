@@ -56,7 +56,7 @@ jobs:
         username: ec2-user
         key: ${{ secrets.EC2_KEY }}
         source: "build/libs/*.jar"
-        target: "/home/ec2-user/apps/config"  # board 서비스라면
+        target: "/home/ec2-user/apps/board/board"  # board 서비스라면
 
     - name: SSH & Docker restart
       uses: appleboy/ssh-action@v0.1.6
