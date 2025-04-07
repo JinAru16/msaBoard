@@ -55,7 +55,7 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ec2-user
         key: ${{ secrets.EC2_KEY }}
-        source: "build/libs/*.jar"
+        source: "board/build/libs/*.jar"
         target: "/home/ec2-user/apps/board/board"  # board 서비스라면
 
     - name: SSH & Docker restart
