@@ -23,8 +23,8 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.*;
 
 
-@SpringBootTest
 @ActiveProfiles("test")
+@SpringBootTest
 @Transactional
 class ReplyServiceTest {
     @Autowired
