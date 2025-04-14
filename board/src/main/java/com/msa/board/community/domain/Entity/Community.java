@@ -27,8 +27,7 @@ public class Community {
     private String username;
 
     @JsonIgnore
-    @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "reply_id")
+    @OneToMany(mappedBy = "community", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reply> reply;
 
     private LocalDateTime createTime;
