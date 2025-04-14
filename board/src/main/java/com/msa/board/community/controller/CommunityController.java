@@ -3,8 +3,11 @@ package com.msa.board.community.controller;
 import com.msa.board.community.domain.Entity.Community;
 import com.msa.board.community.domain.request.CommunityPost;
 import com.msa.board.community.domain.request.CommunityRequest;
+import com.msa.board.community.domain.response.BoardResponse;
 import com.msa.board.community.domain.response.CommunityListResponse;
 import com.msa.board.community.domain.response.CommunityResponse;
+import com.msa.board.community.reply.domain.response.ReplyResponse;
+import com.msa.board.community.reply.service.ReplyService;
 import com.msa.board.community.service.CommunityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,7 @@ import java.util.Map;
 public class CommunityController {
 
     private final CommunityService communityService;
+    private final ReplyService replyService;
 
     @GetMapping("/community")
     public ResponseEntity<List<CommunityListResponse>> findAll() {
@@ -29,13 +33,15 @@ public class CommunityController {
     }
 
     @GetMapping("/community/{id}")
-    public ResponseEntity<CommunityResponse> findOne(@CookieValue(value = "jwt", required = false) String token,
+    public ResponseEntity<BoardResponse> findOne(@CookieValue(value = "jwt", required = false) String token,
                                                      @RequestHeader Map<String, String> headers,
                                                      @PathVariable Long id) {
         CommunityResponse one = communityService.findOne(id);
+        List<ReplyResponse> allReply = replyService.findAllReply(id);
+
         return ResponseEntity
                 .ok()
-                .body(one);
+                .body(new BoardResponse(one, allReply));
     }
 
     @PostMapping("/community")

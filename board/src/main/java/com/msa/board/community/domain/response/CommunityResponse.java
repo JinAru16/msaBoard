@@ -20,7 +20,6 @@ public class CommunityResponse {
     private String title;
     private String content;
     private String username;
-    private List<ReplyResponse> replies;
     private LocalDateTime updateTime;
 
     public CommunityResponse(Community community) {
@@ -28,7 +27,6 @@ public class CommunityResponse {
         this.title = community.getTitle();
         this.content = community.getContent();
         this.username = community.getUsername();
-        this.replies = community.getReply().stream().map(ReplyResponse::new).collect(Collectors.toList());
         this.updateTime = community.getUpdateTime();
     }
 }
