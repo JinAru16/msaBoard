@@ -1,5 +1,8 @@
 package com.msa.board.config;
+import com.msa.common.config.CorsConfig;
+import com.msa.common.config.JwtConfig;
 import com.msa.common.config.JwtTokenProvider;
+import org.springframework.web.filter.CorsFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +21,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CorsFilter corsFilter; // 🔥 CORS 필터 주입 (Spring Security 6.x 이후 방식)
-    private final JwtTokenProvider jwtTokenProvider; // JWT 토큰 관리
+    private final CorsFilter corsFilter = new CorsConfig().corsFilter();// 🔥 CORS 필터 주입 (Spring Security 6.x 이후 방식)
+    private final JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(new JwtConfig()); // JWT 토큰 관리
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
