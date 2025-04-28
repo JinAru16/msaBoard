@@ -22,11 +22,21 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final CorsFilter corsFilter = new CorsConfig().corsFilter();// 🔥 CORS 필터 주입 (Spring Security 6.x 이후 방식)
-    private final JwtTokenProvider jwtTokenProvider = new JwtTokenProvider(new JwtConfig()); // JWT 토큰 관리
+
+
+    @Bean
+    public JwtConfig jwtConfig() {
+        return new JwtConfig();
+    }
+
+    @Bean
+    public JwtTokenProvider jwtTokenProvider() {
+        return new JwtTokenProvider(jwtConfig());
+    }
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtTokenProvider); // ✅ 직접 생성
+        return new JwtAuthenticationFilter(jwtTokenProvider()); // ✅ 직접 생성
     }
 
 
