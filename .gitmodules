@@ -1,0 +1,3 @@
+[submodule "board/commonclass"]
+	path = board/commonclass
+	url = https://github.com/JinAru16/msaCommon.git
