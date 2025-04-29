@@ -1,7 +1,7 @@
 package com.msa.board.community.service;
 
 import com.msa.board.common.exception.BoardException;
-import com.msa.board.common.exception.UserException;
+import com.msa.common.exception.UserException;
 import com.msa.board.community.domain.Entity.Community;
 import com.msa.board.community.domain.request.CommunityPost;
 import com.msa.board.community.domain.request.CommunityRequest;
