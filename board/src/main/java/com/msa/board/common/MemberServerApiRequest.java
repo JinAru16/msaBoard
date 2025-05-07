@@ -1,4 +1,4 @@
-package com.msa.board.order;
+package com.msa.board.common;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -8,17 +8,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
 @Service
-public class UserInfoService {
-    private String baseUrl = "http://localhost:8066";
+public class MemberServerApiRequest {
+    private String baseUrl = "http://localhost:8066/search/member";
 
     public ResponseEntity<Map> getAddressByUsername() throws URISyntaxException {
-        String uri = "/search/member/address";
+        String uri = "/address";
         return getOneDataFromApi(uri);
     }
     //단건리턴

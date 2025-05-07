@@ -1,6 +1,6 @@
 package com.msa.board.community.controller;
 
-import com.msa.board.order.UserInfoService;
+import com.msa.board.common.MemberServerApiRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +14,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api")
 public class RequestMemberApiController {
-    private final UserInfoService userInfoService;
+    private final MemberServerApiRequest userInfoService;
 
     @GetMapping("/member/address")
     public ResponseEntity<?> getAddressFromApi() throws URISyntaxException {

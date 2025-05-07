@@ -1,6 +1,7 @@
 package com.msa.board.order;
 
 
+import com.msa.board.common.MemberServerApiRequest;
 import org.assertj.core.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,19 +12,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestClient;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
-import static com.jayway.jsonpath.internal.function.ParamType.JSON;
-
 
 @SpringBootTest
 public class UserInfoServiceTest {
     @Autowired
-    UserInfoService userInfoService;
+    MemberServerApiRequest userInfoService;
 
     @Test
     @DisplayName("")
