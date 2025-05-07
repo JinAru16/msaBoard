@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class MemberServerApiRequest {
+public class MemberServerApiRequestService {
     private String baseUrl = "http://localhost:8066/search/member";
 
     public ResponseEntity<Map> getAddressByUsername() throws URISyntaxException {

@@ -1,7 +1,7 @@
 package com.msa.board.order;
 
 
-import com.msa.board.common.MemberServerApiRequest;
+import com.msa.board.common.MemberServerApiRequestService;
 import org.assertj.core.api.Assertions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,7 +21,7 @@ import java.util.Map;
 @SpringBootTest
 public class UserInfoServiceTest {
     @Autowired
-    MemberServerApiRequest userInfoService;
+    MemberServerApiRequestService userInfoService;
 
     @Test
     @DisplayName("")

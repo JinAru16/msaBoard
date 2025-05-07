@@ -1,7 +1,6 @@
 package com.msa.board.community.service;
 
 import com.msa.board.common.exception.BoardException;
-import com.msa.board.common.MemberServerApiRequest;
 import com.msa.common.exception.UserException;
 import com.msa.board.community.domain.Entity.Community;
 import com.msa.board.community.domain.request.CommunityPost;
@@ -14,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
