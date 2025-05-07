@@ -2,6 +2,8 @@ package com.msa.board.order;
 
 
 import org.assertj.core.api.Assertions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +19,11 @@ import java.util.Map;
 
 import static com.jayway.jsonpath.internal.function.ParamType.JSON;
 
+
+@SpringBootTest
 public class UserInfoServiceTest {
+    @Autowired
+    UserInfoService userInfoService;
 
     @Test
     @DisplayName("")
@@ -57,8 +63,9 @@ public class UserInfoServiceTest {
     @DisplayName("")
     void getOneMember() throws URISyntaxException {
         //given
-        String ulrOneMember = "http://localhost:8066/search/member/1";
+        String ulrOneMember = "http://localhost:8066/search/member/address";
         URI uriOne = new URI(ulrOneMember);
+        URI uriTwo = new URI("member/address");
 
 
         RestClient restClient = RestClient.builder()
@@ -68,12 +75,14 @@ public class UserInfoServiceTest {
                 .build();
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Cookie", "jwt=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzQ1OTk3MzY2LCJleHAiOjE3NDYwMDA5NjZ9.PTMPPxT5deLcOnhjrGIxO8bLSrVO2ukAqSjM-iakIlQ;");
+        headers.set("Cookie", "jwt=\t\n" +
+                "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzQ2NTgzNjg1LCJleHAiOjE3NDY1ODcyODV9.5OuJJz4_0GDPmKGuLHeLAXLe0apq5P3doJK-CozK4BE");
 
+       System.out.println("uriTwo : " + uriTwo);
 
         //when
         ResponseEntity<Map> entity = restClient.get()
-                .uri(uriOne)
+                .uri(uriTwo)
                 .headers(httpHeaders -> httpHeaders.addAll(headers))
                 .retrieve()
                 .toEntity(Map.class);
@@ -81,6 +90,17 @@ public class UserInfoServiceTest {
         //then
         System.out.println(entity.getStatusCode().toString());
         System.out.println(entity.getBody());
+
+    }
+
+    @Test
+    @DisplayName("")
+    void getAddressByUsernameTest() throws URISyntaxException {
+        //given
+        ResponseEntity<Map> addressByUsername = userInfoService.getAddressByUsername();
+        //when
+        System.out.println(addressByUsername.getBody());
+        //then
 
     }
 }

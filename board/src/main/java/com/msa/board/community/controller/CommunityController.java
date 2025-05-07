@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class CommunityController {
     @GetMapping("/community/{id}")
     public ResponseEntity<BoardResponse> findOne(@CookieValue(value = "jwt", required = false) String token,
                                                      @RequestHeader Map<String, String> headers,
-                                                     @PathVariable Long id) {
+                                                     @PathVariable Long id) throws URISyntaxException {
         CommunityResponse one = communityService.findOne(id);
         List<ReplyResponse> allReply = replyService.findAllReply(id);
 

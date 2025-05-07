@@ -1,6 +1,7 @@
 package com.msa.board.community.service;
 
 import com.msa.board.common.exception.BoardException;
+import com.msa.board.order.UserInfoService;
 import com.msa.common.exception.UserException;
 import com.msa.board.community.domain.Entity.Community;
 import com.msa.board.community.domain.request.CommunityPost;
@@ -13,8 +14,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,11 +29,14 @@ import java.util.stream.Collectors;
 @Transactional
 @Slf4j
 public class CommunityService {
+    private final UserInfoService userInfoService;
     private final CommunityRepository communityRepository;
 
 
-    @Cacheable(value = "community", key = "#id", cacheManager = "boardCacheManager")
-    public CommunityResponse findOne(Long id) {
+   // @Cacheable(value = "community", key = "#id", cacheManager = "boardCacheManager")
+    public CommunityResponse findOne(Long id) throws URISyntaxException {
+        ResponseEntity<Map> addressByUsername = userInfoService.getAddressByUsername();
+        System.out.println("body : " + addressByUsername.getBody());
         log.info("[Cache Miss] DB 조회 실행 - 게시글 ID: {}", id);
         return communityRepository.findById(id)
                 .map(CommunityResponse::new)
