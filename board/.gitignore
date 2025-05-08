@@ -48,3 +48,8 @@ application.yml
 
 ##$# Docker ###
 Dockerfile
+
+### submodule ###
+/commonclass
+
+../.DS_Store
